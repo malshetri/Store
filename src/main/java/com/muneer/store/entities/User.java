@@ -45,8 +45,10 @@ public class User {
         address.setUser(null);
     }
 
+    /*
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Profile profile;
+   */
 
     @ManyToMany
     @JoinTable(

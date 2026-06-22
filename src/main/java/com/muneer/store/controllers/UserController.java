@@ -1,15 +1,14 @@
 package com.muneer.store.controllers;
 
 import com.muneer.store.dtos.UserDto;
-import com.muneer.store.entities.User;
+import com.muneer.store.mappers.UserMapper;
 import com.muneer.store.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -18,12 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @GetMapping
-    public Iterable <UserDto> getAllUsers(){
-
-        return userRepository.findAll()
-                .stream().map(user -> new UserDto(user.getId(), user.getName(), user.getEmail())).toList();
+    public Iterable <UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "", name = "sort") String sort){
+        if (!Set.of("name", "email").contains(sort))
+            sort = "name";
+        return userRepository.findAll(Sort.by(sort))
+                .stream().map(userMapper::toDto).toList();
     }
 
     @GetMapping("/{id}")
@@ -33,7 +34,6 @@ public class UserController {
         if (user == null){
             return ResponseEntity.notFound().build();
         }
-        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 }

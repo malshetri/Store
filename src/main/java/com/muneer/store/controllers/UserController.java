@@ -1,6 +1,7 @@
 package com.muneer.store.controllers;
 
 import com.muneer.store.dtos.RegisterUserRequest;
+import com.muneer.store.dtos.UpdateUserRequest;
 import com.muneer.store.dtos.UserDto;
 import com.muneer.store.mappers.UserMapper;
 import com.muneer.store.repositories.UserRepository;
@@ -37,6 +38,22 @@ public class UserController {
         var userDto = userMapper.toDto(user);
        var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
         return ResponseEntity.created(uri).body(userDto);
+
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable long id, @RequestBody UpdateUserRequest request){
+        var user = userRepository.findById(id).orElse(null);
+
+        if (user == null){
+            return ResponseEntity.notFound().build();
+        }
+        else {
+            userMapper.update(request, user);
+
+            userRepository.save(user);
+
+            return ResponseEntity.ok(userMapper.toDto(user));
+        }
 
     }
 

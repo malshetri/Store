@@ -1,11 +1,11 @@
 package com.muneer.store.controllers;
 
-import com.muneer.store.dtos.ChangePasswordRequest;
-import com.muneer.store.dtos.RegisterUserRequest;
-import com.muneer.store.dtos.UpdateUserRequest;
-import com.muneer.store.dtos.UserDto;
+import com.muneer.store.dtos.*;
+import com.muneer.store.mappers.ProductMapper;
 import com.muneer.store.mappers.UserMapper;
+import com.muneer.store.repositories.ProductRepository;
 import com.muneer.store.repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -23,6 +23,8 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final ProductMapper productMapper;
+    private final ProductRepository productRepository;
 
     @GetMapping
     public Iterable <UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "", name = "sort") String sort){
@@ -32,7 +34,7 @@ public class UserController {
                 .stream().map(userMapper::toDto).toList();
     }
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody RegisterUserRequest request,
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody RegisterUserRequest request,
                                               UriComponentsBuilder uriBuilder){
         var user = userMapper.toEntity(request);
         userRepository.save(user);

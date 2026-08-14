@@ -1,18 +1,17 @@
 package com.muneer.store.dtos;
 
 import com.muneer.store.entities.Category;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+
 
 import java.math.BigDecimal;
-
-@AllArgsConstructor
-@Getter
+@Data
 public class ProductDto {
     private Long id;
     private String name;
     private BigDecimal price;
     private Byte categoryId;
+    private String description;
 
 
 }

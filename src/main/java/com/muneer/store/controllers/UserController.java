@@ -10,9 +10,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -34,8 +37,12 @@ public class UserController {
                 .stream().map(userMapper::toDto).toList();
     }
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody RegisterUserRequest request,
+    public ResponseEntity<?> registerUser
+            (@Valid @RequestBody RegisterUserRequest request,
                                               UriComponentsBuilder uriBuilder){
+        if (userRepository.existsByEmail(request.getEmail())){
+            return ResponseEntity.badRequest().body(Map.of("email", "Email is already exist"));
+        }
         var user = userMapper.toEntity(request);
         userRepository.save(user);
 
@@ -100,4 +107,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
 
     }
+
+
 }

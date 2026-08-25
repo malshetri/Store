@@ -106,18 +106,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>10.15.0</version>
-                <configuration>
-                    <url>${env.DB_URL}</url>
-                    <user>${env.DB_USERNAME}</user>
-                    <password>${env.DB_PASSWORD}</password>
-                    <cleanDisabled>false</cleanDisabled>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>

@@ -5,6 +5,9 @@ import com.muneer.store.mappers.ProductMapper;
 import com.muneer.store.mappers.UserMapper;
 import com.muneer.store.repositories.ProductRepository;
 import com.muneer.store.repositories.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -21,6 +24,7 @@ import java.util.Set;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/users")
+@Tag(name = "Users")
 
 public class UserController {
 
@@ -30,13 +34,17 @@ public class UserController {
     private final ProductRepository productRepository;
 
     @GetMapping
-    public Iterable <UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "", name = "sort") String sort){
+    @Operation(summary = "Get all users")
+    public Iterable <UserDto> getAllUsers(
+            @Parameter(description = "The field used to sort users: name or email")
+            @RequestParam(required = false, defaultValue = "", name = "sort") String sort){
         if (!Set.of("name", "email").contains(sort))
             sort = "name";
         return userRepository.findAll(Sort.by(sort))
                 .stream().map(userMapper::toDto).toList();
     }
     @PostMapping
+    @Operation(summary = "Register a new user")
     public ResponseEntity<?> registerUser
             (@Valid @RequestBody RegisterUserRequest request,
                                               UriComponentsBuilder uriBuilder){
@@ -52,7 +60,11 @@ public class UserController {
 
     }
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable long id, @RequestBody UpdateUserRequest request){
+    @Operation(summary = "Update a user")
+    public ResponseEntity<UserDto> updateUser(
+            @Parameter(description = "The ID of the user")
+            @PathVariable long id,
+            @RequestBody UpdateUserRequest request){
         var user = userRepository.findById(id).orElse(null);
 
         if (user == null){
@@ -67,7 +79,10 @@ public class UserController {
         }
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable long id){
+    @Operation(summary = "Delete a user")
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "The ID of the user")
+            @PathVariable long id){
         var user = userRepository.findById(id).orElse(null);
 
         if (user == null){
@@ -80,7 +95,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity <UserDto> getUser(@PathVariable long id){
+    @Operation(summary = "Get a user")
+    public ResponseEntity <UserDto> getUser(
+            @Parameter(description = "The ID of the user")
+            @PathVariable long id){
 
         var user = userRepository.findById(id).orElse(null);
         if (user == null){
@@ -89,7 +107,9 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
     @PostMapping("/{id}/change-password")
+    @Operation(summary = "Change a user's password")
     public ResponseEntity<Void> changePassword(
+            @Parameter(description = "The ID of the user")
             @PathVariable Long id,
             @RequestBody ChangePasswordRequest request
             ){

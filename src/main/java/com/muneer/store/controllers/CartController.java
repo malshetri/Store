@@ -6,11 +6,12 @@ import com.muneer.store.dtos.CartItemDto;
 import com.muneer.store.dtos.UpdateCartItemRequest;
 import com.muneer.store.exeptions.CartNotFoundExeption;
 import com.muneer.store.exeptions.ProductNotFoundExeption;
-import com.muneer.store.mappers.CartMapper;
-import com.muneer.store.repositories.CartRepository;
-import com.muneer.store.repositories.ProductRepository;
 import com.muneer.store.services.CartService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jdk.jfr.Description;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/carts")
+@Tag(name = "Carts")
 
 public class CartController {
 
@@ -30,6 +32,7 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
+    @Operation(summary = "Create a new cart")
     public ResponseEntity<CartDto> createCart(UriComponentsBuilder uriBuilder){
 
         var cartDto = cartService.createCart();
@@ -38,20 +41,30 @@ public class CartController {
         return ResponseEntity.created(uri).body(cartDto);
     }
     @PostMapping("/{cartId}/items")
-    public ResponseEntity<CartItemDto> addToCart(@PathVariable UUID cartId, @RequestBody AddItemToCartRequest request){
+    @Operation(summary = "Add a product to the cart")
+    public ResponseEntity<CartItemDto> addToCart(
+            @Parameter(description = "The ID of the cart")
+            @PathVariable UUID cartId,
+            @RequestBody AddItemToCartRequest request){
 
 
         var cartItemDto = cartService.addToCart(cartId, request.getProductId());
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemDto);
     }
     @GetMapping("/{cartId}")
-    public CartDto getCart(@PathVariable UUID cartId){
+    @Operation(summary = "Get a cart")
+    public CartDto getCart(
+            @Parameter(description = "The ID of the cart")
+            @PathVariable UUID cartId){
         return  cartService.getCart(cartId);
     }
 
     @PutMapping("/{cartId}/items/{productId}")
+    @Operation(summary = "Update a product quantity in the cart")
     public CartItemDto updateItem(
+            @Parameter(description = "The ID of the cart")
             @PathVariable("cartId") UUID cartId,
+            @Parameter(description = "The ID of the product")
             @PathVariable("productId") Long productId,
             @Valid @RequestBody UpdateCartItemRequest request
     ){
@@ -59,8 +72,11 @@ public class CartController {
     }
 
     @DeleteMapping("/{cartId}/items/{productId}")
+    @Operation(summary = "Remove a product from the cart")
     public ResponseEntity<?> removeItem(
+           @Parameter(description = "The ID of the cart")
            @PathVariable("cartId") UUID cartId,
+           @Parameter(description = "The ID of the product")
            @PathVariable("productId") Long productId
     ){
         cartService.removeItem(cartId, productId);
@@ -68,7 +84,10 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
     @DeleteMapping("/{cartId}/items")
-    public ResponseEntity<Void> clearCart(@PathVariable UUID cartId){
+    @Operation(summary = "Remove all products from the cart")
+    public ResponseEntity<Void> clearCart(
+            @Parameter(description = "The ID of the cart")
+            @PathVariable UUID cartId){
         cartService.clearCart(cartId);
         return ResponseEntity.noContent().build();
     }

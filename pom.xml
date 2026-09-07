@@ -114,6 +114,11 @@
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
         </dependency>
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
 
 
     </dependencies>
@@ -143,10 +148,10 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.15.0</version>
                 <configuration>
-                    <url>${env.DB_URL}</url>
+                    <url>jdbc:mysql://localhost:3306/store_api?createDatabaseIfNotExist=true</url>
                     <user>${env.DB_USERNAME}</user>
                     <password>${env.DB_PASSWORD}</password>
-                    <cleanDisabled>false</cleanDisabled>
+                    <cleanDisabled>true</cleanDisabled>
                 </configuration>
             </plugin>
 

@@ -53,9 +53,9 @@ public class AuthenticationController {
     public ResponseEntity<UserDto> me(){
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var email = (String) authentication.getPrincipal();
+        var id = (Long) authentication.getPrincipal();
 
-        var user = userRepository.findByEmail(email).orElse(null);
+        var user = userRepository.findById(id).orElse(null);
 
         if (user == null){
             return ResponseEntity.notFound().build();

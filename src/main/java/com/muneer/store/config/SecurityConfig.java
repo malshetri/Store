@@ -1,5 +1,6 @@
 package com.muneer.store.config;
 
+import com.muneer.store.entities.Role;
 import com.muneer.store.filters.JwtAuthenticationFilter;
 import com.muneer.store.services.UserService;
 import lombok.AllArgsConstructor;
@@ -56,14 +57,22 @@ public class SecurityConfig {
                         .requestMatchers("/carts/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/admin/**").hasRole(Role.Admin.name())
                         .requestMatchers(HttpMethod.POST, "/auth/validate").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
 
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c -> c.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-                ));
+                .exceptionHandling(c -> {
+                            c.authenticationEntryPoint(
+                                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+
+                                    c.accessDeniedHandler((
+                                            request,
+                                            response,
+                                            accessDeniedException)
+                                            -> response.setStatus(HttpStatus.FORBIDDEN.value()));
+                        });
 
     return http.build();
     }

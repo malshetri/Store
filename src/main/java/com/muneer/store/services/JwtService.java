@@ -1,14 +1,13 @@
 package com.muneer.store.services;
 
 import com.muneer.store.config.JwtConfig;
+import com.muneer.store.entities.Role;
 import com.muneer.store.entities.User;
 import com.muneer.store.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +37,7 @@ public class JwtService {
         return Jwts.builder()
                 .claim("name", user.getName())
                 .claim("email", user.getEmail())
+                .claim("role", user.getRole())
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
@@ -67,5 +67,9 @@ public class JwtService {
     public Long getIdFromToken(String token){
         return Long.valueOf(getClaims(token).getSubject());
 
+    }
+
+    public Role getRoleFromToken(String token){
+        return Role.valueOf(getClaims(token).get("role", String.class));
     }
 }

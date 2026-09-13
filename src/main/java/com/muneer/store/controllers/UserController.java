@@ -1,6 +1,7 @@
 package com.muneer.store.controllers;
 
 import com.muneer.store.dtos.*;
+import com.muneer.store.entities.Role;
 import com.muneer.store.mappers.ProductMapper;
 import com.muneer.store.mappers.UserMapper;
 import com.muneer.store.repositories.ProductRepository;
@@ -53,6 +54,7 @@ public class UserController {
         }
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.User);
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);

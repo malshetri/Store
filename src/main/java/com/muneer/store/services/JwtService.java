@@ -19,41 +19,30 @@ public class JwtService {
     private final UserRepository userRepository;
     private final JwtConfig jwtConfig;
 
-    public String generateAccessToken(String email){
+    public Jwt generateAccessToken(String email){
         var user = userRepository.findByEmail(email).orElseThrow(()->
                                             new UsernameNotFoundException("User not found"));
 
         return generateToken(user, jwtConfig.getAccessTokenExpiration());
     }
 
-    public String generateRefreshToken(String email){
+    public Jwt generateRefreshToken(String email){
         var user = userRepository.findByEmail(email).orElseThrow(()->
                 new UsernameNotFoundException("User not found"));
 
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
 
-    private String generateToken(User user, long tokenExpiration) {
-        return Jwts.builder()
-                .claim("name", user.getName())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole())
+    private Jwt generateToken(User user, long tokenExpiration) {
+        var claims = Jwts.claims()
                 .subject(user.getId().toString())
+                .add("email", user.getEmail())
+                .add("name", user.getName())
+                .add("role", user.getRole() )
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
-                .signWith(jwtConfig.getSecretKey())
-                .compact();
-    }
-
-    public boolean validateToken(String token){
-        try {
-
-
-            var claims = getClaims(token);
-            return claims.getExpiration().after(new Date());
-        } catch (JwtException ex) {
-              return false;
-        }
+                .build();
+        return new Jwt(claims, jwtConfig.getSecretKey());
     }
 
     private Claims getClaims(String token) {
@@ -64,12 +53,13 @@ public class JwtService {
                 .getPayload();
     }
 
-    public Long getIdFromToken(String token){
-        return Long.valueOf(getClaims(token).getSubject());
-
+    public Jwt praseToken(String token){
+        try{
+            var claims = getClaims(token);
+            return new Jwt(claims, jwtConfig.getSecretKey());
+        } catch (JwtException e){
+            return null;
+        }
     }
 
-    public Role getRoleFromToken(String token){
-        return Role.valueOf(getClaims(token).get("role", String.class));
-    }
 }

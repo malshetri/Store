@@ -6,6 +6,7 @@ import com.muneer.store.dtos.LoginRequest;
 import com.muneer.store.dtos.UserDto;
 import com.muneer.store.mappers.UserMapper;
 import com.muneer.store.repositories.UserRepository;
+import com.muneer.store.services.Jwt;
 import com.muneer.store.services.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -33,7 +33,6 @@ public class AuthenticationController {
     private final UserMapper userMapper;
     private final JwtConfig jwtConfig;
 
-
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequest request,
@@ -45,7 +44,7 @@ public class AuthenticationController {
         var accessToken = jwtService.generateAccessToken(request.getEmail());
         var refreshToken = jwtService.generateRefreshToken(request.getEmail());
 
-        var cookie = new Cookie("refreshToken", refreshToken);
+        var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setHttpOnly(true);
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
@@ -53,21 +52,21 @@ public class AuthenticationController {
         response.addCookie(cookie);
 
 
-        return ResponseEntity.ok(new JwtResponse(accessToken));
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
 
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> refresh(@CookieValue(value = "refreshToken") String refreshToken){
 
-        if (!jwtService.validateToken(refreshToken)){
+        var jwt = jwtService.praseToken(refreshToken);
+        if (jwt == null || jwt.isExpired()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        var id = jwtService.getIdFromToken(refreshToken);
-        var user = userRepository.findById(id).orElseThrow();
+        var user = userRepository.findById(jwt.getUserId()).orElseThrow();
         var accessToken = jwtService.generateAccessToken(user.getEmail());
 
-        return ResponseEntity.ok(new JwtResponse (accessToken));
+        return ResponseEntity.ok(new JwtResponse (accessToken.toString()));
 
     }
 

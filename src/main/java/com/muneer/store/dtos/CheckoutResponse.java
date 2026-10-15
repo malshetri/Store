@@ -3,10 +3,10 @@ package com.muneer.store.dtos;
 import lombok.Data;
 
 @Data
-public class CheckOutResponse {
+public class CheckoutResponse {
     private Long orderId;
 
-    public CheckOutResponse(Long orderId) {
+    public CheckoutResponse(Long orderId) {
         this.orderId = orderId;
 
     }

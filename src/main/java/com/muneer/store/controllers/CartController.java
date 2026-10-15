@@ -1,9 +1,6 @@
 package com.muneer.store.controllers;
 
-import com.muneer.store.dtos.AddItemToCartRequest;
-import com.muneer.store.dtos.CartDto;
-import com.muneer.store.dtos.CartItemDto;
-import com.muneer.store.dtos.UpdateCartItemRequest;
+import com.muneer.store.dtos.*;
 import com.muneer.store.exeptions.CartNotFoundExeption;
 import com.muneer.store.exeptions.ProductNotFoundExeption;
 import com.muneer.store.services.CartService;
@@ -92,12 +89,12 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
     @ExceptionHandler(CartNotFoundExeption.class)
-    public ResponseEntity<Map<String,String>> handleCartNotFound(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Cart Not Found"));
+    public ResponseEntity<ErrorDto> handleCartNotFound(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body (new ErrorDto("Cart Not Found"));
     }
     @ExceptionHandler(ProductNotFoundExeption.class)
-    public ResponseEntity<Map<String,String>> handleProductNotFound(){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Product Not Found in the cart"));
+    public ResponseEntity<ErrorDto> handleProductNotFound(){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Product Not Found in the cart"));
     }
 }
 

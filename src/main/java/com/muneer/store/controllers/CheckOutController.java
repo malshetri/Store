@@ -2,6 +2,7 @@ package com.muneer.store.controllers;
 
 import com.muneer.store.dtos.CheckOutRequest;
 import com.muneer.store.dtos.CheckOutResponse;
+import com.muneer.store.dtos.ErrorDto;
 import com.muneer.store.entities.Order;
 import com.muneer.store.entities.OrderItem;
 import com.muneer.store.entities.OrderStatus;
@@ -37,13 +38,11 @@ public class CheckOutController {
         var cart = cartRepository.getCartWithItems(request.getCartId()).orElse(null);
 
         if (cart == null || cart.getItems() == null){
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", "Cart not found")
+            return ResponseEntity.badRequest().body(new ErrorDto("Cart not found")
             );
         }
         if (cart.getItems().isEmpty()){
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", "Cart is empty")
+            return ResponseEntity.badRequest().body(new ErrorDto("Cart is empty")
             );
         }
 
